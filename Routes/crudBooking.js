@@ -51,7 +51,7 @@ router.get('/getBookingByRole', auth.authentification, (req, res) => {
     } else {
         getBooking = "SELECT booking.idClient, booking.idGame, booking.date, booking.time, booking.nbPlayers, booking.totalPrice, booking.event, clients.name, clients.firstname, clients.email, clients.birthday, clients.address, clients.phone, clients.role, escapeGames.title, escapeGames.description, escapeGames.duration, escapeGames.price, escapeGames.players, escapeGames.image, escapeGames.video, escapeGames.home, escapeGames.homeKit FROM booking INNER JOIN escapeGames ON escapeGames.idGame = booking.idGame INNER JOIN clients ON clients.idClient = booking.idClient WHERE booking.idClient=?;";
     }
-    bdd.query ( getBooking, [req.idClient], (error, result) => {
+    bdd.query ( getBooking, [req.clientRole], (error, result) => {
         if (error) throw error;
         res.json (result);
         console.log(clientId);     

@@ -3,7 +3,12 @@ const app = express();
 const bodyParser = require("body-parser");
 const crudClient = require('./Routes/crudClient')
 const cors = require("cors");
-const crudBooking = require('./Routes/crudBooking')
+
+// Ajouter mes imports 
+const crudBooking = require('./Routes/crudBooking');
+const crudMGame = require('./Routes/crudMGame');
+const crudResults = require('./Routes/crudResult');
+const crudStock = require('./Routes/crudStock');
 
 
 app.use(cors());
@@ -12,8 +17,11 @@ app.use(bodyParser.json());
 
 app.use("/client", crudClient);
 
-// Ajout route pour booking et escape
+// Ajout route pour booking et miniGames
 app.use("/booking", crudBooking);
+app.use("/MGame", crudMGame);
+app.use('/Result', crudResults);
+app.use('/Stock', crudStock);
 
 
 
