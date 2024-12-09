@@ -10,7 +10,8 @@ const authentification = (req, res, next) => {
                 console.log(token);
                 return res.status(401).send('token incorrect');
             } else {
-                req.clientId = decode.id;
+                // Je dois modifier pour que ça corresponde à notre bdd
+                req.idClient = decode.id;
                 req.clientEmail = decode.email;
                 req.clientFirstname = decode.firstname
                 req.clientRole = decode.role;
