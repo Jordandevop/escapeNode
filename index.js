@@ -7,6 +7,8 @@ const crudClient = require('./Routes/crudClient');
 const crudEscape = require('./Routes/crudEscape'); 
 const crudBooking = require('./Routes/crudBooking');
 const crudMGame = require('./Routes/crudMGame');
+const crudResults = require('./Routes/crudResult');
+const crudStock = require('./Routes/crudStock');
 
 
 
@@ -20,9 +22,11 @@ app.use('/client', crudClient);
 app.use('/escape', crudEscape);
 app.use('/booking', crudBooking);
 app.use('/mgame', crudMGame);
+app.use('/Result', crudResults);
+app.use('/Stock', crudStock);
 
 
-app.listen(process.env.PORT || 3000, () => {
-    console.log("je suis sur le port 3000");
-});
-
+app.listen(process.env.PORT || 3000,() => {
+    console.log("Bienvenue sur le port 3000");
+    
+})
