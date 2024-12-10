@@ -59,6 +59,14 @@ router.get('/getResultByIdClient', auth.authentification, (req, res) => {
     });
 });
 
+// Afficher les résultats et les récompenses en fonction du client
+router.get('/getResultRewardByClient', auth.authentification, (req, res) => {
+    const getResultRewardByClient = "SELECT clients.name, miniGames.mgTitle, mgResults.score, miniGames.reward FROM clients INNER JOIN mgResults ON mgResults.idClient = clients.idClient INNER JOIN miniGames ON miniGames.idMiniGame = mgResults.idMiniGame WHERE clients.email=?;";
+    bdd.query( getResultRewardByClient, [req.clientEmail], (error, result) => {
+        if (error) throw error;
+        res.json(result);
+    });
+});
 
 // Afficher tous les résultats si on est admin
 router.get('/getResultByRole', auth.authentification, (req, res) => {

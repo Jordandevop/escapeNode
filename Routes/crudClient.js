@@ -15,7 +15,7 @@ router.post('/login', (req, res) => {
             const client = result[0];
             if (password === client.password) {
                 // J'ai dû changer et mettre idClient comme dans notre bdd
-                const token = jwt.sign({ id: client.idClient, role: client.role}, 'secretkey', {expiresIn: '3h'});
+                const token = jwt.sign({ email: client.email, role: client.role}, 'secretkey', {expiresIn: '3h'});
                 console.log(token);
                 
                 res.json({token});

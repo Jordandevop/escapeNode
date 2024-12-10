@@ -65,5 +65,4 @@ router.get('/getMGameByRole', auth.authentification, (req, res) => {
 
 
 
-
 module.exports = router;
