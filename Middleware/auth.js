@@ -1,27 +1,28 @@
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
 
-const authentification = (req, res, next) => {
+const authentification =(req,res, next) => {
     const token = req.headers['authorization'];
+    
+    
     if (token) {
         console.log('Token reçu', token);
-        jwt.verify(token.split(' ')[1], 'secretkey', (error, decode) => {
+        jwt.verify(token.split(' ')[1], 'secretkey',(error,decode) =>{
             if (error) {
-                console.log('Errur de vérification du token :', error);
-                console.log(token);
-                return res.status(401).send('token incorrect');
+                console.log('Erreur de verification du token', error);
+                return res.status(401).send('token incorrect')        
             } else {
-                // Je dois modifier pour que ça corresponde à notre bdd
-                req.idClient = decode.id;
-                req.clientEmail = decode.email;
-                req.clientFirstname = decode.firstname
+                req.clientId = decode.idClient;
+                req.clientEmAil = decode.email;
+                req.clientFirstname = decode.firstname;
                 req.clientRole = decode.role;
-                next();
+                next ();
             }
         });
-
+   
     } else {
-        res.status(401).send('aucun token');
+        res.status(401).send('aucun token')
+        
     }
 };
 
-module.exports = {authentification}
+module.exports = {authentification};
