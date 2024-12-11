@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bdd = require('../Config/bdd');
-const auth = require('../middleware/auth');
+const auth = require('../Middleware/auth');
 
 // Ajouter du stock en fonction de l'idGame
 router.post('/addStock', auth.authentification, (req, res) => {

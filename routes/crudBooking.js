@@ -2,15 +2,16 @@ const express = require('express');
 const router = express.Router();
 const bdd = require('../Config/bdd');
 const jwt = require('jsonwebtoken');
-const auth = require('../middleware/auth');
+const auth = require('../Middleware/auth');
 
+// Ajout de l'idClient dans la const req.body et dans bdd.query
 // Ajouter une réservation :
 router.post('/addBooking', auth.authentification, (req, res) => {
-    const { idGame, date, time, nbPlayers, totalPrice, event } = req.body;
+    const { idClient, idGame, date, time, nbPlayers, totalPrice, event } = req.body;
     const addBooking = "INSERT INTO booking (idClient, idGame, date, time, nbPlayers, totalPrice, event) VALUES (?, ?, ?, ?, ?, ?, ?);";
     console.log(addBooking);
     
-    bdd.query (addBooking, [req.idClient, idGame, date, time, nbPlayers, totalPrice, event], (error, result) => {
+    bdd.query (addBooking, [idClient, idGame, date, time, nbPlayers, totalPrice, event], (error, result) => {
         if(error) {
             return res.status(500).send("Erreur lors de l'ajout de la réservation");
         }
@@ -18,7 +19,7 @@ router.post('/addBooking', auth.authentification, (req, res) => {
     });
 });
 
-// Modifier une réservation
+// Modifier une réservation OK
 router.patch('/updateBooking/:idBooking', auth.authentification, (req, res) => {
     const { idBooking } = req.params;
     const { idClient, idGame, date, time, nbPlayers, totalPrice, event } = req.body;
@@ -30,34 +31,33 @@ router.patch('/updateBooking/:idBooking', auth.authentification, (req, res) => {
     });
 });
 
-// Supprimer une réservation
+// Supprimer une réservation OK
 router.delete('/deleteBooking/:idBooking', auth.authentification, (req, res) => {
     const { idBooking } = req.params;
     const deleteBooking = "DELETE FROM booking WHERE idBooking = ?;";
-
     bdd.query ( deleteBooking, [ idBooking ], (error, result) => {
         if (error) throw error;
         res.send("Réservation supprimée");
     });
 });
 
+// Modification des playersMin et Max et enlever req.clientRole dans les [] dans bdd.query
 // Afficher les réservations en fonction du rôle et du client
 router.get('/getBookingByRole', auth.authentification, (req, res) => {
     let getBooking = "";
     if (req.clientRole == "admin") {
-        getBooking = "SELECT booking.idClient, booking.idGame, booking.date, booking.time, booking.nbPlayers, booking.totalPrice, booking.event, clients.name, clients.firstname, clients.email, clients.birthday, clients.address, clients.phone, clients.role, escapeGames.title, escapeGames.description, escapeGames.duration, escapeGames.price, escapeGames.players, escapeGames.image, escapeGames.video, escapeGames.home, escapeGames.homeKit FROM booking INNER JOIN escapeGames ON escapeGames.idGame = booking.idGame INNER JOIN clients ON clients.idClient = booking.idClient;";
-
+        getBooking = "SELECT booking.idClient, booking.idGame, booking.date, booking.time, booking.nbPlayers, booking.totalPrice, booking.event, clients.name, clients.firstname, clients.email, clients.birthday, clients.address, clients.phone, clients.role, escapeGames.title, escapeGames.description, escapeGames.duration, escapeGames.price, escapeGames.playersMin, escapeGames.playersMax, escapeGames.image, escapeGames.video, escapeGames.home, escapeGames.homeKit FROM booking INNER JOIN escapeGames ON escapeGames.idGame = booking.idGame INNER JOIN clients ON clients.idClient = booking.idClient;";
     } else {
-        getBooking = "SELECT booking.idClient, booking.idGame, booking.date, booking.time, booking.nbPlayers, booking.totalPrice, booking.event, clients.name, clients.firstname, clients.email, clients.birthday, clients.address, clients.phone, clients.role, escapeGames.title, escapeGames.description, escapeGames.duration, escapeGames.price, escapeGames.players, escapeGames.image, escapeGames.video, escapeGames.home, escapeGames.homeKit FROM booking INNER JOIN escapeGames ON escapeGames.idGame = booking.idGame INNER JOIN clients ON clients.idClient = booking.idClient WHERE booking.idClient=?;";
+        getBooking = "SELECT booking.idClient, booking.idGame, booking.date, booking.time, booking.nbPlayers, booking.totalPrice, booking.event, clients.name, clients.firstname, clients.email, clients.birthday, clients.address, clients.phone, clients.role, escapeGames.title, escapeGames.description, escapeGames.duration, escapeGames.price, escapeGames.playersMin, escapeGames.playersMax, escapeGames.image, escapeGames.video, escapeGames.home, escapeGames.homeKit FROM booking INNER JOIN escapeGames ON escapeGames.idGame = booking.idGame INNER JOIN clients ON clients.idClient = booking.idClient WHERE clients.email=?;";
     }
-    bdd.query ( getBooking, [req.clientRole], (error, result) => {
+    bdd.query(getBooking, [req.clientEmail], (error, result) => {
+      
         if (error) throw error;
-        res.json (result);
-        console.log(clientId);     
+        res.json (result);    
     });
 });
 
-// Afficher les résa sur un même escape game
+// Afficher les résa sur un même escape game OK (problème les réservations ajoutées ne se suppriment pas)
 router.get('/getBookingByIdGame/:idGame', auth.authentification, (req, res) => {
     const { idGame } = req.params;
     const getBookingByIdGame = "SELECT escapeGames.title, COUNT(booking.idBooking) FROM booking INNER JOIN escapeGames ON escapeGames.idGame = booking.idGame WHERE booking.idGame = ?;";
@@ -67,7 +67,7 @@ router.get('/getBookingByIdGame/:idGame', auth.authentification, (req, res) => {
     });
 });
 
-// Afficher toutes les résa par escape game
+// Afficher toutes les résa par escape game OK
 router.get('/getAllBookingByGame', auth.authentification, (req, res) => {
     const getAllBookingByGame = "SELECT booking.date, booking.time, escapeGames.title, booking.idBooking FROM booking INNER JOIN escapeGames ON escapeGames.idGame = booking.idGame ORDER BY escapeGames.title;";
     bdd.query(getAllBookingByGame, (error, result) => {
@@ -76,7 +76,7 @@ router.get('/getAllBookingByGame', auth.authentification, (req, res) => {
     });
 });
 
-// Afficher les resa par date et par game
+// Afficher les resa par date et par game OK
 router.get('/getAllBookingByDateByGame', auth.authentification, (req, res) => {
     const getAllBookingByDateByGame = "SELECT booking.date, booking.time, escapeGames.title, booking.idBooking FROM booking INNER JOIN escapeGames ON escapeGames.idGame = booking.idGame ORDER BY booking.date, escapeGames.title;";
     bdd.query(getAllBookingByDateByGame, (error, result) => {
@@ -85,7 +85,7 @@ router.get('/getAllBookingByDateByGame', auth.authentification, (req, res) => {
     });
 });
 
-// Afficher les résa sur une date donnée
+// Afficher les résa sur une date donnée OK
 router.get('/getAllBookingByDate', auth.authentification, (req, res) => {
     const { date } = req.body;
     const getAllBookingByDate = "SELECT booking.date, booking.time, escapeGames.title, booking.idBooking FROM booking INNER JOIN escapeGames ON escapeGames.idGame = booking.idGame WHERE booking.date = ?;";
@@ -95,7 +95,7 @@ router.get('/getAllBookingByDate', auth.authentification, (req, res) => {
     });
 });
 
-// Afficher le nombre de résa par game
+// Afficher le nombre de résa par game OK
 router.get('/getNbBookingByGame', auth.authentification, (req, res) => {
     const getNbBookingByGame = "SELECT booking.date, booking.time, escapeGames.title, COUNT(booking.idBooking) FROM booking INNER JOIN escapeGames ON escapeGames.idGame = booking.idGame GROUP BY escapeGames.title;";
     bdd.query(getNbBookingByGame, (error, result) => {
@@ -104,7 +104,7 @@ router.get('/getNbBookingByGame', auth.authentification, (req, res) => {
     });
 });
 
-// Afficher le nb de résa en fonction du client
+// Afficher le nb de résa en fonction du client OK
 router.get('/getNbBookingByClient', auth.authentification, (req, res) => {
     const getNbBookingByClient = "SELECT COUNT(booking.idBooking), clients.name FROM booking INNER JOIN clients ON clients.idClient = booking.idClient WHERE clients.email = ?;";
     bdd.query( getNbBookingByClient, [req.clientEmail], (error, result) => {
@@ -113,7 +113,7 @@ router.get('/getNbBookingByClient', auth.authentification, (req, res) => {
     } );
 });
 
-// Afficher le nombre de résa par date
+// Afficher le nombre de résa par date OK
 router.get('/getAllBookingByDate', auth.authentification, (req, res) => {
     const getAllBookingByDate = "SELECT booking.date, booking.time, escapeGames.title, COUNT(booking.idBooking) FROM booking INNER JOIN escapeGames ON escapeGames.idGame = booking.idGame GROUP BY booking.date;";
     bdd.query(getAllBookingByDate, (error, result) => {
@@ -122,7 +122,7 @@ router.get('/getAllBookingByDate', auth.authentification, (req, res) => {
     });
 });
 
-// Afficher le nombre de joueurs par résa
+// Afficher le nombre de joueurs par résa OK
 router.get('/getNbPlayersByBooking', auth.authentification, (req, res) => {
     const getNbPlayersByBooking = "SELECT booking.idBooking, booking.nbPlayers FROM booking;";
     bdd.query(getNbPlayersByBooking, (error, result) => {
@@ -131,7 +131,7 @@ router.get('/getNbPlayersByBooking', auth.authentification, (req, res) => {
     });
 });
 
-// Afficher le prix total, le score et le reward par résa
+// Afficher le prix total, le score et le reward par résa OK
 router.get('/getTotalPriceWithScore', auth.authentification, (req, res) => {
     const getTotalPriceWithScore = "SELECT booking.idBooking, clients.name, booking.totalPrice, mgResults.score, miniGames.reward FROM booking INNER JOIN clients ON clients.idClient = booking.idClient INNER JOIN mgResults ON mgResults.idClient = clients.idClient INNER JOIN miniGames ON miniGames.idMiniGame = mgResults.idMiniGame;";
     bdd.query( getTotalPriceWithScore, (error, result) => {
