@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const bdd = require('../Config/bdd');
 const jwt = require('jsonwebtoken');
-const auth = require('../middleware/auth');
+const auth = require('../Middleware/auth');
 
-//Ajouter un résultat à la main si on est admin
+//Ajouter un résultat à la main si on est admin OK
 router.post('/addResult', auth.authentification, (req, res) => {
     let addResult = "";
     const { idClient, idMiniGame, score, playedAt } = req.body;
@@ -19,7 +19,7 @@ router.post('/addResult', auth.authentification, (req, res) => {
     });
 });
 
-// Modifier un résultat si on est admin
+// Modifier un résultat si on est admin OK
 router.patch('/updateResult/:idResult', auth.authentification, (req, res) => {
     const { idResult } = req.params;
     const { idClient, idMiniGame, score, playedAt  } = req.body;

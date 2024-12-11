@@ -2,21 +2,27 @@ const express = require('express');
 const router = express.Router();
 const bdd = require('../Config/bdd');
 const jwt = require('jsonwebtoken');
-const auth = require('../middleware/auth');
+const auth = require('../Middleware/auth');
 
-// Ajouter un miniGame
+
+// Ajouter un miniGame OK
 router.post('/addMGame', auth.authentification, (req, res) => {
-    const { mgtitle, mgDes, reward } = req.body;
-    const addMGame = "INSERT INTO miniGames (mgtitle, mgDes, reward) VALUES (?, ?, ?);";
-    bdd.query( addMGame, [mgtitle, mgDes, reward], (error, result) => {
-        if (error) {
-            return res.status(500).send("Erreur lors de l'ajout du mini game");
-        }
-        res.send("Le mini game a bien été ajouté");
-    })
-})
+    const { mgTitle, mgDes, reward } = req.body;
+    let addMGame = "";
+    if(req.clientRole == "admin") {
+        addMGame = "INSERT INTO miniGames (mgTitle, mgDes, reward) VALUES (?, ?, ?);";
+    } else {
+        res.send("Vous n'avez pas l'accès");
+    }
+    bdd.query( addMGame, [mgTitle, mgDes, reward, req.clientRole], (error, result) => {
+        if(error) throw error;
+        console.log(error);
+        
+        res.send("Mini game ajouté.");
+    });
+});
 
-// Modifier un mini game
+// Modifier un mini game OK
 router.patch('/updateMGame/:idMiniGame', auth.authentification, (req, res) => {
     const { idMiniGame } = req.params;
     const { mgTitle, mgDes, reward } = req.body;
@@ -38,7 +44,7 @@ router.delete('/deleteMGame/:idMiniGame', auth.authentification, (req, res) => {
 });
 
 
-//Afficher un mini game via son id
+//Afficher un mini game via son id OK
 router.get('/getMGameById/:idMiniGame', auth.authentification, (req, res) => {
     const { idMiniGame } = req.params;
     const getMGameById = "SELECT * FROM miniGames WHERE idMiniGame = ?;";
@@ -49,7 +55,7 @@ router.get('/getMGameById/:idMiniGame', auth.authentification, (req, res) => {
 });
 
 
-// Afficher les mini games si on est admin
+// Afficher les mini games si on est admin OK
 router.get('/getMGameByRole', auth.authentification, (req, res) => {
     let getMGameByRole = "";
     if (req.clientRole == "admin") {

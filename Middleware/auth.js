@@ -11,7 +11,7 @@ const authentification = (req, res, next) => {
         return res.status(401).send("token incorrect");
       } else {
         req.clientId = decode.idClient;
-        req.clientEmAil = decode.email;
+        req.clientEmail = decode.email;
         req.clientFirstname = decode.firstname;
         req.clientRole = decode.role;
         next();
