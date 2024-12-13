@@ -3,6 +3,9 @@ const router = express.Router();
 const bdd = require('../Config/bdd');
 const jwt = require('jsonwebtoken');
 const auth = require('../Middleware/auth');
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
 
 const handleError = (err, res) => {
