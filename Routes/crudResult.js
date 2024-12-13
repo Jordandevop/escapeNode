@@ -4,84 +4,92 @@ const bdd = require('../Config/bdd');
 const jwt = require('jsonwebtoken');
 const auth = require('../Middleware/auth');
 
-//Ajouter un résultat à la main si on est admin OK
-router.post('/addResult', auth.authentification, (req, res) => {
-    let addResult = "";
-    const { idClient, idMiniGame, score, playedAt } = req.body;
-    if(req.clientRole == "admin") {
-        addResult = "INSERT INTO mgResults (idClient, idMiniGame, score, playedAt) VALUES (?, ?, ?, ?);";
-    } else {
-        res.send("Vous n'êtes pas autorisé à accéder à cette fonction.");
-    }
-    bdd.query (addResult, [ idClient, idMiniGame, score, playedAt, req.clientRole ], (error, result) => {
+// ERREUR !!
+//Ajouter un résultat à la main si on est admin, j'ai ajouté le now et sendReward OK
+// router.post('/addResult', auth.authentification, (req, res) => {
+//     let addResult = "";
+//     const { idClient, idMiniGame, score } = req.body;
+//     if(req.clientRole == "admin") {
+//         addResult = "INSERT INTO mgResults (idClient, idMiniGame, score, playedAt, sendReward) VALUES (?, ?, ?, now(), now());";
+//     } else {
+//         res.send("Vous n'êtes pas autorisé à accéder à cette fonction.");
+//     }
+//     bdd.query (addResult, [ idClient, idMiniGame, score, req.clientRole ], (error, result) => {
+//         if (error) throw error;
+//         res.send("Résultat ajouté.");
+//     });
+// });
+
+// Ajout du résultat après avoir joué OK OK
+router.post('/addResult', (req, res) => {
+    const { idClient, idMiniGame, score } = req.body;
+    const addResult = "INSERT INTO mgResults (idClient, idMiniGame, score, playedAt) VALUES (?, ?, ?, now());";
+    bdd.query(addResult, [ idClient, idMiniGame, score ], (error, result) => {
         if (error) throw error;
-        res.send("Résutat ajouté.");
+        res.send("Résultat ajouté.");
     });
 });
 
-// Modifier un résultat si on est admin OK
+// Modifier un résultat si on est admin, j'ai ajouté le now et enlevé playedAt OK OK
 router.patch('/updateResult/:idResult', auth.authentification, (req, res) => {
     const { idResult } = req.params;
-    const { idClient, idMiniGame, score, playedAt  } = req.body;
+    const { idClient, idMiniGame, score  } = req.body;
     let updateResult = "";
     if (req.clientRole == "admin") {
-        updateResult = "UPDATE mgResults SET idClient=?, idMiniGame=?, score=?, playedAt=? WHERE idResult=?;";
+        updateResult = "UPDATE mgResults SET idClient=?, idMiniGame=?, score=? WHERE idResult=?;";
+        bdd.query ( updateResult, [idClient, idMiniGame, score, idResult], (error, result) => {
+            if (error) throw error;
+            res.send("Résultat modifié.");
+        });
     } else {
         res.send("Vous n'êtes pas autorisé à accéder à cette fonction.");
     }
-    bdd.query ( updateResult, [idClient, idMiniGame, score, playedAt, idResult], (error, result) => {
-        if (error) throw error;
-        res.send("Résultat modifié.");
-    });
 });
 
-// Supprimer un résultat si on est admin
+// Supprimer un résultat si on est admin OK OK
 router.delete('/deleteResult/:idResult', auth.authentification, (req, res) => {
     const { idResult } = req.params;
     let deleteResult = "";
     if (req.clientRole == "admin") {
         deleteResult = "DELETE from mgResults WHERE idResult=?;";
+        bdd.query ( deleteResult, [idResult], (error, result) => {
+            if(error) throw error;
+            res.send("Résultat supprimé");
+        });
     } else {
         res.send("Vous n'êtes pas autorisé à accéder à cette fonction.");
     }
-    bdd.query ( deleteResult, [idResult], (error, result) => {
-        if(error) throw error;
-        res.send("Résultat supprimé");
-    });
+
 });
 
-// Afficher les résultats en fonction du client
-router.get('/getResultByIdClient', auth.authentification, (req, res) => {
-    const getResultByIdClient = "SELECT mgResults.idResult, mgResults.idMiniGame, mgResults.score, mgResults.playedAt, miniGames.mgTitle, miniGames.reward FROM mgResults INNER JOIN miniGames ON miniGames.idMiniGame = mgResults.idMiniGame WHERE idClient = ?;";
-    bdd.query ( getResultByIdClient, [req.idClient], (error, result) => {
-        if (error) throw error;
-        res.json(result);
-    });
-});
-
-// Afficher les résultats et les récompenses en fonction du client
-router.get('/getResultRewardByClient', auth.authentification, (req, res) => {
-    const getResultRewardByClient = "SELECT clients.name, miniGames.mgTitle, mgResults.score, miniGames.reward FROM clients INNER JOIN mgResults ON mgResults.idClient = clients.idClient INNER JOIN miniGames ON miniGames.idMiniGame = mgResults.idMiniGame WHERE clients.email=?;";
-    bdd.query( getResultRewardByClient, [req.clientEmail], (error, result) => {
-        if (error) throw error;
-        res.json(result);
-    });
-});
-
-// Afficher tous les résultats si on est admin
-router.get('/getResultByRole', auth.authentification, (req, res) => {
-    let getResultByRole = "";
-    if ( req.clientRole == "admin") {
-        getResultByRole = "SELECT mgResults.idResult, mgResults.idMiniGame, mgResults.score, mgResults.playedAt, miniGames.mgTitle, miniGames.reward FROM mgResults INNER JOIN miniGames ON miniGames.idMiniGame = mgResults.idMiniGame;";
+// Afficher les résultats et les dates en fonction du client OK OK
+router.get('/getResult', auth.authentification, (req, res) => {
+    let getResultByIdClient = "";
+    if (req.clientRole == "admin") {
+        getResultByIdClient = "SELECT mgResults.idResult, mgResults.idMiniGame, mgResults.score, mgResults.playedAt, miniGames.mgTitle FROM mgResults INNER JOIN miniGames ON miniGames.idMiniGame = mgResults.idMiniGame INNER JOIN clients ON clients.idClient = mgResults.idClient;";
     } else {
-        res.send ("Vous n'avez pas les droits admin.")
+        getResultByIdClient = "SELECT mgResults.idResult, mgResults.idMiniGame, mgResults.score, mgResults.playedAt, miniGames.mgTitle FROM mgResults INNER JOIN miniGames ON miniGames.idMiniGame = mgResults.idMiniGame INNER JOIN clients ON clients.idClient = mgResults.idClient WHERE clients.email = ?;";
     }
-    bdd.query (getResultByRole, [req.clientRole], (error, result) => {
+    bdd.query ( getResultByIdClient, [req.clientEmail], (error, result) => {
         if (error) throw error;
         res.json(result);
     });
 });
 
+
+// Afficher le temps écoulé entre maintenant et le moment où un client a joué (pas avant 1 semaine) OK
+router.get('/getTimeParty', auth.authentification, (req, res) => {
+    let getTimeParty = "";
+    if(req.clientRole === "admin") {
+        getTimeParty = "SELECT clients.idClient, clients.name, clients.firstname, miniGames.idMiniGame, miniGames.mgTitle, mgResults.playedAt, DATEDIFF(now(), playedAt) FROM clients INNER JOIN mgResults ON mgResults.idClient = clients.idClient INNER JOIN miniGames ON miniGames.idMiniGame = miniGames.idMiniGame;";
+    } else {
+        getTimeParty = "SELECT clients.idClient, clients.name, clients.firstname, miniGames.idMiniGame, miniGames.mgTitle, mgResults.playedAt, DATEDIFF(now(), playedAt) FROM clients INNER JOIN mgResults ON mgResults.idClient = clients.idClient INNER JOIN miniGames ON miniGames.idMiniGame = miniGames.idMiniGame WHERE clients.email=?;"
+    }
+    bdd.query( getTimeParty, [req.clientRole, req.clientEmail], (error, result) => {
+        if (error) throw error;
+        res.json(result);
+    });
+});
 
 
 module.exports = router;
