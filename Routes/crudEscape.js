@@ -7,7 +7,7 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-// gestion des erreur ajout image
+// Gestion des erreurs
 const handleError = (err, res) => {
   res
     .status(500)
@@ -155,12 +155,16 @@ router.get('/allEscape', (req, res) => {
 //Mettre à jour un Escape game
 router.post('/updateEscape/:idGame', auth.authentification, (req, res) => {
   if (req.clientRole === "admin") {
-    const { title, description, duration, price, playersMin, playersMax, image, video, home, homeKit } = req.body;
+    const { title, description, duration, price, playersMin, playersMax, image, video, home, homeKit, idTheme } = req.body;
     const { idGame } = req.params;
     const sql = 'update escapeGames SET title = ?, description = ?, duration = ?, price = ?, playersMin = ?, playersMax = ?, image = ?, video = ?, home = ? , homeKit = ? WHERE idGame =?;';
     bdd.query(sql, [title, description, duration, price, playersMin, playersMax, image, video, home, homeKit, idGame], (error, result) => {
-      if (error) throw error;
-      res.send(" Escape mis à jour");
+      const escapeId = result.insertId;
+      const updateEscapeInThemesGames = "UPDATE themesGames SET idGame=?, idTheme=?;";
+      bdd.query(updateEscapeInThemesGames, [escapeId, idTheme], (error, result) => {
+        if (error) throw error;
+        res.send("L'escape game a été modifié.");
+      });
     });
   } else {
     res.send("Vous ne pouvez pas modifier d'escape game.")
@@ -180,7 +184,7 @@ router.delete('/deleteEscape/:idGame', auth.authentification, (req, res) => {
   });
 });
 
-// Afficher les escape games à domicile OK
+// Afficher les escape game sur place OK
 router.get("/getGames", (req, res) => {
   const getGames = "SELECT * FROM escapeGames WHERE home=0;";
   bdd.query(getGames, (error, result) => {
@@ -189,7 +193,7 @@ router.get("/getGames", (req, res) => {
   });
 });
 
-// Afficher les escape game sur place OK
+// Afficher les escape games à domicile OK
 router.get("/getGamesAtHome", (req, res) => {
   const getGamesAtHome = "SELECT * FROM escapeGames WHERE home=1;";
   bdd.query(getGamesAtHome, (error, result) => {
