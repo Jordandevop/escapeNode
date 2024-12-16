@@ -151,5 +151,13 @@ router.get("/getGamesByDifficulty/:idDifficulty", (req, res) => {
   });
 });
 
+// Afficher le nombre d'escape game
+router.get("/getNbGames", (req, res) => {
+  const getNbGames = "SELECT COUNT(idGame) AS nombre FROM escapeGames;";
+  bdd.query(getNbGames, (error, result) => {
+    res.json(result);
+  });
+});
+
 
 module.exports = router;
