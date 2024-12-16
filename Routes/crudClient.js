@@ -48,6 +48,8 @@ router.get("/allClient", auth.authentification, (req, res) => {
   });
 });
 
+
+
 //Creer Route pour mettre à jour un client
 router.patch("/updateClient", auth.authentification, (req, res) => {
   const cryptPassword = bcrypt.hashSync(password, 10);
