@@ -60,11 +60,11 @@ router.post("/addGame", upload.single("file"), auth.authentification, (req, res)
         //   .end("Seulement .png, .jpg, webp, .jpeg  sont des fichiers acceptés!");
       });
     }
-    const { title, description, duration, price, playersMin, video, home, homeKit, playersMax, idDifficulty, idTheme } = escape;
+    const { title, description, duration, price, playersMin, video, home, homeKit, playersMax, finalGoal, idDifficulty, idTheme } = escape;
     console.log(title);
 
-    const addGame = "INSERT INTO escapeGames (title, description, duration, price, playersMin, image, video, home, homeKit, playersMax, idDifficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-    bdd.query(addGame, [title, description, duration, price, playersMin, req.file.originalname, video, home, homeKit, playersMax, idDifficulty], (error, result) => {
+    const addGame = "INSERT INTO escapeGames (title, description, duration, price, playersMin, image, video, home, homeKit, playersMax,finalGoal, idDifficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?);";
+    bdd.query(addGame, [title, description, duration, price, playersMin, req.file.originalname, video, home, homeKit, playersMax, finalGoal, idDifficulty], (error, result) => {
 
       const idEscape = result.insertId;
 
@@ -93,9 +93,9 @@ router.get('/allEscape', (req, res) => {
 //Mettre à jour un Escape game
 router.post('/updateEscape/:idGame', auth.authentification, (req, res) => {
   if (req.clientRole === "admin") {
-    const { title, description, duration, price, playersMin, playersMax, image, video, home, homeKit, idTheme } = req.body;
+    const { title, description, duration, price, playersMin, playersMax, image, video, home, homeKit, finalGoal, idTheme } = req.body;
     const { idGame } = req.params;
-    const sql = 'update escapeGames SET title = ?, description = ?, duration = ?, price = ?, playersMin = ?, playersMax = ?, image = ?, video = ?, home = ? , homeKit = ? WHERE idGame =?;';
+    const sql = 'update escapeGames SET title = ?, description = ?, duration = ?, price = ?, playersMin = ?, playersMax = ?, image = ?, video = ?, home = ? , homeKit = ?, finalGoal = ? WHERE idGame =?;';
     bdd.query(sql, [title, description, duration, price, playersMin, playersMax, image, video, home, homeKit, idGame], (error, result) => {
       const escapeId = result.insertId;
       const updateEscapeInThemesGames = "UPDATE themesGames SET idGame=?, idTheme=?;";
@@ -131,6 +131,10 @@ router.get("/getGames", (req, res) => {
   });
 });
 
+// Afficher les escape game par id
+router.get("/getGamesById/:id", (req, res) => { const id = req.params.id; const getGameById = "SELECT * FROM escapeGames WHERE idGame = ?"; bdd.query(getGameById, [id], (error, result) => { if (error) throw error; res.json(result); }); });
+
+
 // Afficher les escape games à domicile OK
 router.get("/getGamesAtHome", (req, res) => {
   const getGamesAtHome = "SELECT * FROM escapeGames WHERE home=1;";
@@ -139,6 +143,15 @@ router.get("/getGamesAtHome", (req, res) => {
     res.json(result);
   });
 });
+router.get("/getGamesAtHomeById/:id", (req, res) => {
+  const id = req.params.id;
+  const getGamesAtHome = "SELECT * FROM escapeGames WHERE idGame=? and home=1;";
+  bdd.query(getGamesAtHome, [id], (error, result) => {
+    if (error) throw error;
+    res.json(result);
+  });
+});
+
 
 
 // Afficher les escape games par thème
