@@ -56,6 +56,15 @@ router.delete("/deleteDifficulty/:idDifficulty", auth.authentification, (req, re
     };
 });
 
+// Afficher les difficultés
+router.get("/getDifficulties", (req, res) => {
+    const getDifficulties = "SELECT difficulties.level, count(escapeGames.idGame) AS nombre FROM escapeGames RIGHT JOIN difficulties ON difficulties.idDifficulty = escapeGames.idDifficulty GROUP BY difficulties.idDifficulty;";
+    bdd.query(getDifficulties, (error, result) => {
+        if(error) throw error;
+        res.json(result);
+    });
+});
+
 
 
 

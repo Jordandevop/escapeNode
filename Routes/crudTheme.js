@@ -60,6 +60,14 @@ router.delete("/deleteTheme/:idTheme", auth.authentification, (req, res) => {
     };
 });
 
+// Afficher les thèmes et le nombre de jeux dans chaque thème
+router.get("/getNbGamesByTheme", (req, res) => {
+    const getNbGamesByTheme = "SELECT themes.topic, count(escapeGames.idGame) AS nombre FROM themes LEFT JOIN themesGames ON themesGames.idTheme = themes.idTheme LEFT JOIN escapeGames ON escapeGames.idGame = themesGames.idGame GROUP BY themes.idTheme;";
+    bdd.query (getNbGamesByTheme, (error, result) => {
+        if (error) throw error;
+        res.json(result);
+    });
+});
 
 
 module.exports = router;
