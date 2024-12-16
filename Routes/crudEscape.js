@@ -29,7 +29,11 @@ router.get("/images/:imageName", (req, res) => {
 // Ajout d'un jeu avec thème et difficulté ok
 router.post("/addGame", upload.single("file"), auth.authentification, (req, res) => {
   if (req.clientRole == "admin") {
+    const escape = JSON.parse(req.body.escape)
     const tempPath = req.file.path;
+
+
+
     const targetPath = path.join(
       __dirname,
       "../images/" + req.file.originalname
@@ -37,28 +41,32 @@ router.post("/addGame", upload.single("file"), auth.authentification, (req, res)
     if (
       path.extname(req.file.originalname).toLowerCase() === ".png" ||
       path.extname(req.file.originalname).toLowerCase() === ".jpg" ||
+      path.extname(req.file.originalname).toLowerCase() === ".jpeg" ||
       path.extname(req.file.originalname).toLowerCase() === ".webp"
     ) {
       fs.rename(tempPath, targetPath, (err) => {
         if (err) return handleError(err, res);
 
-        res.status(200).contentType("text/plain").end("Image chargée!");
+        // res.status(200).contentType("text/plain").end("Image chargée!");
       });
     } else {
       fs.unlink(tempPath, (err) => {
         if (err) return handleError(err, res);
 
-        res
-          .status(403)
-          .contentType("text/plain")
-          .end("Seulement .png, .jpg sont des fichiers acceptés!");
+        // res
+        //   .status(403)
+        //   .contentType("text/plain")
+        //   .end("Seulement .png, .jpg, webp, .jpeg  sont des fichiers acceptés!");
       });
     }
-    const { title, description, duration, price, playersMin, image, video, home, homeKit, playersMax, idDifficulty, idTheme } = req.body;
+    const { title, description, duration, price, playersMin, video, home, homeKit, playersMax, idDifficulty, idTheme } = escape;
+    console.log(title);
+
     const addGame = "INSERT INTO escapeGames (title, description, duration, price, playersMin, image, video, home, homeKit, playersMax, idDifficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-    bdd.query(addGame, [title, description, duration, price, playersMin, image, video, home, homeKit, playersMax, idDifficulty], (error, result) => {
+    bdd.query(addGame, [title, description, duration, price, playersMin, req.file.originalname, video, home, homeKit, playersMax, idDifficulty], (error, result) => {
 
       const idEscape = result.insertId;
+
       const addGameInThemesGames = "INSERT INTO themesGames (idGame, idTheme) VALUES (?, ?);";
 
       bdd.query(addGameInThemesGames, [idEscape, idTheme], (error, result) => {
