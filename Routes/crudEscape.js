@@ -53,6 +53,7 @@ router.post("/addGame", upload.single("file"), auth.authentification, (req, res)
       fs.unlink(tempPath, (err) => {
         if (err) return handleError(err, res);
 
+        //utile si on souhaite juste inserer des images
         // res
         //   .status(403)
         //   .contentType("text/plain")
