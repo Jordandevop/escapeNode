@@ -92,18 +92,16 @@ router.get('/allEscape', (req, res) => {
 });
 
 //Mettre à jour un Escape game
-router.post('/updateEscape/:idGame', auth.authentification, (req, res) => {
+router.patch('/updateEscape/:idGame', auth.authentification, (req, res) => {
   if (req.clientRole === "admin") {
     const { title, description, duration, price, playersMin, playersMax, image, video, home, homeKit, finalGoal, idTheme } = req.body;
+    console.log(req.body);
+
     const { idGame } = req.params;
     const sql = 'update escapeGames SET title = ?, description = ?, duration = ?, price = ?, playersMin = ?, playersMax = ?, image = ?, video = ?, home = ? , homeKit = ?, finalGoal = ? WHERE idGame =?;';
-    bdd.query(sql, [title, description, duration, price, playersMin, playersMax, image, video, home, homeKit, finalGoal, idGame], (error, result) => {
-      const escapeId = result.insertId;
-      const updateEscapeInThemesGames = "UPDATE themesGames SET idGame=?, idTheme=?;";
-      bdd.query(updateEscapeInThemesGames, [escapeId, idTheme], (error, result) => {
-        if (error) throw error;
-        res.send("L'escape game a été modifié.");
-      });
+    bdd.query(sql, [title, description, duration, price, playersMin, playersMax, image, video, home, homeKit, finalGoal, idTheme, idGame], (error, result) => {
+      if (error) throw error;
+      res.send("L'escape game a été modifié.");
     });
   } else {
     res.send("Vous ne pouvez pas modifier d'escape game.")
