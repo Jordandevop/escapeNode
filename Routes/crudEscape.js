@@ -23,12 +23,13 @@ const upload = multer({
 // Route pour servir une image spécifique
 router.get("/images/:imageName", (req, res) => {
   res.sendFile(path.join(__dirname, "../images/" + req.params.imageName));
-  // console.log(imagePath);
+
 });
 
 // Ajout d'un jeu avec thème et difficulté ok
 router.post("/addGame", upload.single("file"), auth.authentification, (req, res) => {
   if (req.clientRole == "admin") {
+
     const escape = JSON.parse(req.body.escape)
     const tempPath = req.file.path;
 
