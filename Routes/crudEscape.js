@@ -97,7 +97,7 @@ router.post('/updateEscape/:idGame', auth.authentification, (req, res) => {
     const { title, description, duration, price, playersMin, playersMax, image, video, home, homeKit, finalGoal, idTheme } = req.body;
     const { idGame } = req.params;
     const sql = 'update escapeGames SET title = ?, description = ?, duration = ?, price = ?, playersMin = ?, playersMax = ?, image = ?, video = ?, home = ? , homeKit = ?, finalGoal = ? WHERE idGame =?;';
-    bdd.query(sql, [title, description, duration, price, playersMin, playersMax, image, video, home, homeKit, idGame], (error, result) => {
+    bdd.query(sql, [title, description, duration, price, playersMin, playersMax, image, video, home, homeKit, finalGoal, idGame], (error, result) => {
       const escapeId = result.insertId;
       const updateEscapeInThemesGames = "UPDATE themesGames SET idGame=?, idTheme=?;";
       bdd.query(updateEscapeInThemesGames, [escapeId, idTheme], (error, result) => {
