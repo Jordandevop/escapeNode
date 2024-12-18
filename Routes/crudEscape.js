@@ -17,55 +17,62 @@ const handleError = (err, res) => {
 
 //Configuration de multer pour upload
 const upload = multer({
-  dest: "../images",
+  dest: "../uploads",
 });
+
+
 
 // Route pour servir une image spécifique
 router.get("/images/:imageName", (req, res) => {
-  res.sendFile(path.join(__dirname, "../images/" + req.params.imageName));
+  res.sendFile(path.join(__dirname, "../uploads/images/" + req.params.imageName));
 
 });
 
+//Route pour afficher une videos specifique
+router.get("/videos/:videoName", (req, res) => {
+  res.sendFile(path.join(__dirname, "../uploads/videos/" + req.params.videoName))
+})
+
 // Ajout d'un jeu avec thème et difficulté ok
-router.post("/addGame", upload.single("file"), auth.authentification, (req, res) => {
+router.post("/addGame", upload.fields([{ name: 'file' }, { name: 'video' }]), auth.authentification, (req, res) => {
   if (req.clientRole == "admin") {
 
+
     const escape = JSON.parse(req.body.escape)
-    const tempPath = req.file.path;
+    // Vérification et déplacement des fichiers
+    const imageFile = req.files.file ? req.files.file[0] : null;
+    const videoFile = req.files.video ? req.files.video[0] : null;
 
 
 
-    const targetPath = path.join(
-      __dirname,
-      "../images/" + req.file.originalname
-    );
-    if (
-      path.extname(req.file.originalname).toLowerCase() === ".png" ||
-      path.extname(req.file.originalname).toLowerCase() === ".jpg" ||
-      path.extname(req.file.originalname).toLowerCase() === ".jpeg" ||
-      path.extname(req.file.originalname).toLowerCase() === ".webp"
-    ) {
-      fs.rename(tempPath, targetPath, (err) => {
+    if (imageFile && (path.extname(imageFile.originalname).toLowerCase() === ".png" || path.extname(imageFile.originalname).toLowerCase() === ".jpg")) {
+      const targetPath = path.join(__dirname, "../uploads/images/" + imageFile.originalname);
+      fs.rename(imageFile.path, targetPath, err => {
         if (err) return handleError(err, res);
-
-        // res.status(200).contentType("text/plain").end("Image chargée!");
       });
-    } else {
-      fs.unlink(tempPath, (err) => {
+    } else if (imageFile) {
+      fs.unlink(imageFile.path, err => {
         if (err) return handleError(err, res);
-
-        //utile si on souhaite juste inserer des images
-        // res
-        //   .status(403)
-        //   .contentType("text/plain")
-        //   .end("Seulement .png, .jpg, webp, .jpeg  sont des fichiers acceptés!");
+        return res.status(403).contentType("text/plain").end("Only .png, .jpg files are allowed for images!");
       });
     }
-    const { title, description, duration, price, playersMin, video, home, homeKit, playersMax, finalGoal, idDifficulty, idTheme } = escape;
-    console.log(title);
+
+    if (videoFile && (path.extname(videoFile.originalname).toLowerCase() === ".mp4")) {
+      const targetPath = path.join(__dirname, "../uploads/videos/" + videoFile.originalname);
+      fs.rename(videoFile.path, targetPath, err => {
+        if (err) return handleError(err, res);
+      });
+    } else if (videoFile) {
+      fs.unlink(videoFile.path, err => {
+        if (err) return handleError(err, res);
+        return res.status(403).contentType("text/plain").end("Only .mp4 files are allowed for videos!");
+      });
+    }
+    const { title, description, duration, price, playersMin, home, homeKit, playersMax, finalGoal, idDifficulty, idTheme } = escape;
+
 
     const addGame = "INSERT INTO escapeGames (title, description, duration, price, playersMin, image, video, home, homeKit, playersMax,finalGoal, idDifficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?);";
-    bdd.query(addGame, [title, description, duration, price, playersMin, req.file.originalname, video, home, homeKit, playersMax, finalGoal, idDifficulty], (error, result) => {
+    bdd.query(addGame, [title, description, duration, price, playersMin, imageFile.originalname, videoFile.originalname, home, homeKit, playersMax, finalGoal, idDifficulty], (error, result) => {
 
       const idEscape = result.insertId;
 
@@ -92,15 +99,49 @@ router.get('/allEscape', (req, res) => {
 });
 
 //Mettre à jour un Escape game
-router.patch('/updateEscape/:idGame', auth.authentification, (req, res) => {
+router.patch('/updateEscape/:idGame', upload.fields([{ name: 'file' }, { name: 'video' }]), auth.authentification, (req, res) => {
   if (req.clientRole === "admin") {
-    const { title, description, duration, price, playersMin, playersMax, image, video, home, homeKit, finalGoal, idTheme } = req.body;
-    console.log(req.body);
+    const escape = JSON.parse(req.body.escape)
+    const imageFile = req.files.file ? req.files.file[0] : null;
+    const videoFile = req.files.video ? req.files.video[0] : null;
+
+
+
+    if (imageFile && (path.extname(imageFile.originalname).toLowerCase() === ".png" || path.extname(imageFile.originalname).toLowerCase() === ".jpg")) {
+      const targetPath = path.join(__dirname, "../uploads/images/" + imageFile.originalname);
+      fs.rename(imageFile.path, targetPath, err => {
+        if (err) return handleError(err, res);
+      });
+    } else if (imageFile) {
+      fs.unlink(imageFile.path, err => {
+        if (err) return handleError(err, res);
+        return res.status(403).contentType("text/plain").end("Only .png, .jpg files are allowed for images!");
+      });
+    }
+
+    if (videoFile && (path.extname(videoFile.originalname).toLowerCase() === ".mp4")) {
+      const targetPath = path.join(__dirname, "../uploads/videos/" + videoFile.originalname);
+      fs.rename(videoFile.path, targetPath, err => {
+        if (err) return handleError(err, res);
+      });
+    } else if (videoFile) {
+      fs.unlink(videoFile.path, err => {
+        if (err) return handleError(err, res);
+        return res.status(403).contentType("text/plain").end("Only .mp4 files are allowed for videos!");
+      });
+    }
+
+
+    const { title, description, duration, price, playersMin, playersMax, image, video, home, homeKit, finalGoal, idTheme } = escape;
+
 
     const { idGame } = req.params;
+
     const sql = 'update escapeGames SET title = ?, description = ?, duration = ?, price = ?, playersMin = ?, playersMax = ?, image = ?, video = ?, home = ? , homeKit = ?, finalGoal = ? WHERE idGame =?;';
-    bdd.query(sql, [title, description, duration, price, playersMin, playersMax, image, video, home, homeKit, finalGoal, idTheme, idGame], (error, result) => {
+    bdd.query(sql, [title, description, duration, price, playersMin, playersMax, req.file.originalname, video, home, homeKit, finalGoal, idGame], (error, result) => {
       if (error) throw error;
+      console.log(error, result);
+
       res.send("L'escape game a été modifié.");
     });
   } else {
