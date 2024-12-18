@@ -12,6 +12,7 @@ const crudStock = require("./Routes/crudStock");
 const crudReward = require("./Routes/crudReward");
 const crudTheme = require("./Routes/crudTheme");
 const crudDifficulty = require("./Routes/crudDifficulty");
+const crudPromo = require("./Routes/crudPromo");
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -26,6 +27,7 @@ app.use("/Stock", crudStock);
 app.use("/reward", crudReward);
 app.use("/theme", crudTheme);
 app.use("/difficulty", crudDifficulty);
+app.use("/promo", crudPromo);
 
 app.listen(process.env.PORT || 3000, () => {
   console.log("Bienvenue sur le port 3000");

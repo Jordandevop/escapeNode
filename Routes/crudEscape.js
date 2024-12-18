@@ -173,7 +173,13 @@ router.get("/getGames", (req, res) => {
 });
 
 // Afficher les escape game par id
-router.get("/getGamesById/:id", (req, res) => { const id = req.params.id; const getGameById = "SELECT * FROM escapeGames WHERE idGame = ?"; bdd.query(getGameById, [id], (error, result) => { if (error) throw error; res.json(result); }); });
+router.get("/getGamesById/:id", (req, res) => {
+  const id = req.params.id;
+  const getGameById = "SELECT * FROM escapeGames WHERE idGame = ?";
+  bdd.query(getGameById, [id], (error, result) => {
+    if (error) throw error; res.json(result);
+  });
+});
 
 
 // Afficher les escape games à domicile OK
