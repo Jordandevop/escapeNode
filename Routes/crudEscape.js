@@ -40,13 +40,12 @@ router.post("/addGame", upload.fields([{ name: 'file' }, { name: 'video' }]), au
 
     const escape = JSON.parse(req.body.escape)
     // Vérification et déplacement des fichiers
-    const imageFile = req.files.file ? req.files.file[0] : null;
-    const videoFile = req.files.video ? req.files.video[0] : null;
+    const imageFile = req.files && req.files.file ? req.files.file[0] : null;
+    const videoFile = req.files && req.files.video ? req.files.video[0] : null;
 
 
 
-    if (imageFile && (path.extname(imageFile.originalname).toLowerCase() === ".png" ||
-      path.extname(imageFile.originalname).toLowerCase() === ".jpg")) {
+    if (imageFile && (path.extname(imageFile.originalname).toLowerCase() === ".png" || path.extname(imageFile.originalname).toLowerCase() === ".jpg")) {
       const targetPath = path.join(__dirname, "../uploads/images/" + imageFile.originalname);
       fs.rename(imageFile.path, targetPath, err => {
         if (err) return handleError(err, res);
@@ -73,7 +72,9 @@ router.post("/addGame", upload.fields([{ name: 'file' }, { name: 'video' }]), au
 
 
     const addGame = "INSERT INTO escapeGames (title, description, duration, price, playersMin, image, video, home, homeKit, playersMax,finalGoal, idDifficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?);";
+    console.log(imageFile.originalname);
     bdd.query(addGame, [title, description, duration, price, playersMin, imageFile.originalname, videoFile.originalname, home, homeKit, playersMax, finalGoal, idDifficulty], (error, result) => {
+
 
       const idEscape = result.insertId;
 
@@ -139,11 +140,13 @@ router.patch('/updateEscape/:idGame', upload.fields([{ name: 'file' }, { name: '
     const { idGame } = req.params;
 
     const sql = 'update escapeGames SET title = ?, description = ?, duration = ?, price = ?, playersMin = ?, playersMax = ?, image = ?, video = ?, home = ? , homeKit = ?, finalGoal = ? WHERE idGame =?;';
-    bdd.query(sql, [title, description, duration, price, playersMin, playersMax, req.file.originalname, video, home, homeKit, finalGoal, idGame], (error, result) => {
-      if (error) throw error;
-      console.log(error, result);
-
-      res.send("L'escape game a été modifié.");
+    bdd.query(sql, [title, description, duration, price, playersMin, playersMax, image, video, home, homeKit, idGame], (error, result) => {
+      const escapeId = result.insertId;
+      const updateEscapeInThemesGames = "UPDATE themesGames SET idGame=?, idTheme=?;";
+      bdd.query(updateEscapeInThemesGames, [escapeId, idTheme], (error, result) => {
+        if (error) throw error;
+        res.send("L'escape game a été modifié.");
+      });
     });
   } else {
     res.send("Vous ne pouvez pas modifier d'escape game.")
@@ -173,13 +176,7 @@ router.get("/getGames", (req, res) => {
 });
 
 // Afficher les escape game par id
-router.get("/getGamesById/:id", (req, res) => {
-  const id = req.params.id;
-  const getGameById = "SELECT * FROM escapeGames WHERE idGame = ?";
-  bdd.query(getGameById, [id], (error, result) => {
-    if (error) throw error; res.json(result);
-  });
-});
+router.get("/getGamesById/:id", (req, res) => { const id = req.params.id; const getGameById = "SELECT * FROM escapeGames WHERE idGame = ?"; bdd.query(getGameById, [id], (error, result) => { if (error) throw error; res.json(result); }); });
 
 
 // Afficher les escape games à domicile OK
