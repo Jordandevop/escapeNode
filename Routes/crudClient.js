@@ -8,7 +8,7 @@ const auth = require("../Middleware/auth");
 //creer Route pour ajouter un client
 router.post("/addClient", async (req, res) => {
   const { name, firstname, email, birthday, phone, password, createdAt } =
-req.body;
+    req.body;
   const securedPassword = await bcrypt.hash(password, 10);
   const sql =
     "insert into clients (name, firstname, email, birthday,  phone, password, createdAt) values (?,?,?,?,?,?, NOW());";
@@ -48,13 +48,28 @@ router.get("/allClient", auth.authentification, (req, res) => {
   });
 });
 
+//Route pour afficher les clients par id
+
+router.get("/client/:id", auth.authentification, (req, res) => {
+  const idClient = req.params.id;
+  const getClient = "SELECT * FROM clients WHERE idClient = ?;";
+  bdd.query(getClient, [idClient], (error, result) => {
+    if (error) throw error;
+    res.json(result);
+  });
+})
+
 
 
 //Creer Route pour mettre à jour un client
-router.patch("/updateClient", auth.authentification, (req, res) => {
-  const cryptPassword = bcrypt.hashSync(password, 10);
+router.patch("/updateClient/", auth.authentification, (req, res) => {
+
   const { name, firstname, email, birthday, address, phone, password } =
     req.body;
+  if (!email) {
+    return res.status(400).json({ message: "Email requis pour identifier le client." });
+  }
+  const cryptPassword = bcrypt.hashSync(password, 10);
   const updateClient =
     "UPDATE clients SET name = ?, firstname = ?, email = ?, birthday = ?, address = ?, phone = ? , password= ? WHERE email = ?;";
   bdd.query(
