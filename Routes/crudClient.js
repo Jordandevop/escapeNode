@@ -62,10 +62,14 @@ router.get("/client/:id", auth.authentification, (req, res) => {
 
 
 //Creer Route pour mettre à jour un client
-router.patch("/updateClient/", auth.authentification, (req, res) => {
-
+router.patch("/updateClient", auth.authentification, (req, res) => {
+  // if (req.clientRole !== "admin") {
+  //   return res.status(401).send("Vous n'avez pas les droits pour modifier cet utilisateur");
+  // }
   const { name, firstname, email, birthday, address, phone, password } =
     req.body;
+
+
   if (!email) {
     return res.status(400).json({ message: "Email requis pour identifier le client." });
   }
