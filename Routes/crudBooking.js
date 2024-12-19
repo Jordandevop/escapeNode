@@ -7,12 +7,13 @@ const auth = require('../Middleware/auth');
 // Ajouter une réservation OK :
 router.post('/addBooking', (req, res) => {
     const { idClient, idGame, date, time, nbPlayers, totalPrice, event } = req.body;
-    const addBooking = "INSERT INTO booking (idClient, idGame, date, time, nbPlayers, totalPrice, event) VALUES (?, ?, ?, ?, ?, ?, ?);";
-    console.log(addBooking);
-    
+    const addBooking = "INSERT INTO booking (idClient, idGame, date, time, nbPlayers, totalPrice, event) VALUES (?, ?, ?, ?, ?, ?, ?);";    
     bdd.query (addBooking, [idClient, idGame, date, time, nbPlayers, totalPrice, event], (error, result) => {
         if(error) {
+            console.log(error);
             return res.status(500).send("Erreur lors de l'ajout de la réservation");
+
+            
         }
         res.send("La réservation a bien été ajoutée");
     });
