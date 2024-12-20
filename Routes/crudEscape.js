@@ -79,7 +79,10 @@ router.post("/addGame", upload.fields([{ name: 'file' }, { name: 'video' }]), au
 
     bdd.query(addGame, [title, description, duration, price, playersMin, nameImg, nameVideo, home, homeKit, playersMax, finalGoal, idDifficulty], (error, result) => {
 
-
+      // if (error) {res.send("Il y a eu une erreur lors de la modif de l'escape game")}
+      if(error) {
+        res.send("Une erreur est survenue lors de la modification de l'escape game.")
+      }
       const idEscape = result.insertId;
 
       const addGameInThemesGames = "INSERT INTO themesGames (idGame, idTheme) VALUES (?, ?);";
