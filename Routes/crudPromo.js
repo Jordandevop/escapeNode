@@ -12,7 +12,7 @@ router.post("/addPromo", auth.authentification, (req, res) => {
     if (req.clientRole == "admin") {
         const sql = "INSERT INTO promo (code_value, created_at, expiration_date, is_used) VALUES (?,?,?,?);";
         bdd.query(sql, [code_value, created_at, expiration_date, is_used, req.clientRole], (error, result) => {
-            if(error) throw error;
+            if (error) throw error;
             res.send("Code promo a été ajoutée.");
         });
     } else {
@@ -27,7 +27,7 @@ router.get("/getAllPromos", auth.authentification, (req, res) => {
     if (req.clientRole == "admin") {
         const sql = "SELECT * FROM promo;";
         bdd.query(sql, (error, result) => {
-            if(error) throw error;
+            if (error) throw error;
             res.send(result);
         });
     } else {
@@ -39,12 +39,12 @@ router.get("/getAllPromos", auth.authentification, (req, res) => {
 //route pour mettre a jour les codes promos
 
 router.put("/updatePromo/:id", auth.authentification, (req, res) => {
-    const { id} = req.params;
+    const { id } = req.params;
     const { code_value, created_at, expiration_date, is_used } = req.body;
     if (req.clientRole == "admin") {
         const sql = "UPDATE promo SET code_value=?, created_at=?, expiration_date=?, is_used=? WHERE id=?;";
         bdd.query(sql, [code_value, created_at, expiration_date, is_used, id, req.clientRole], (error, result) => {
-            if(error) throw error;
+            if (error) throw error;
             res.send("Code promo a été modifiée.");
         });
     } else {
@@ -59,7 +59,7 @@ router.delete("/deletePromo/:id", auth.authentification, (req, res) => {
     if (req.clientRole == "admin") {
         const sql = "DELETE FROM promo WHERE id=?;";
         bdd.query(sql, [id, req.clientRole], (error, result) => {
-            if(error) throw error;
+            if (error) throw error;
             res.send("Code promo a été supprimée.");
         });
     } else {
@@ -69,4 +69,4 @@ router.delete("/deletePromo/:id", auth.authentification, (req, res) => {
 
 
 
-module.exports =  router;
+module.exports = router;
