@@ -45,7 +45,8 @@ router.post("/addGame", upload.fields([{ name: 'file' }, { name: 'video' }]), au
 
 
 
-    if (imageFile && (path.extname(imageFile.originalname).toLowerCase() === ".png" || path.extname(imageFile.originalname).toLowerCase() === ".jpg")) {
+    if (imageFile && (path.extname(imageFile.originalname).toLowerCase() === ".png" ||
+      path.extname(imageFile.originalname).toLowerCase() === ".jpg")) {
       const targetPath = path.join(__dirname, "../uploads/images/" + imageFile.originalname);
       fs.rename(imageFile.path, targetPath, err => {
         if (err) return handleError(err, res);
@@ -72,13 +73,13 @@ router.post("/addGame", upload.fields([{ name: 'file' }, { name: 'video' }]), au
 
 
     const addGame = "INSERT INTO escapeGames (title, description, duration, price, playersMin, image, video, home, homeKit, playersMax,finalGoal, idDifficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?);";
-    console.log(imageFile.originalname);
+
     const nameImg = imageFile ? imageFile.originalname : '';
     const nameVideo = videoFile ? videoFile.originalname : '';
 
 
     bdd.query(addGame, [title, description, duration, price, playersMin, nameImg, nameVideo, home, homeKit, playersMax, finalGoal, idDifficulty], (error, result) => {
-
+      // if (error) {res.send('erreur lors de la creation de l escape game' )}
 
       const idEscape = result.insertId;
 
@@ -145,7 +146,6 @@ router.patch('/updateEscape/:idGame', upload.fields([{ name: 'file' }, { name: '
     const nameImg = imageFile ? imageFile.originalname : '';
     const nameVideo = videoFile ? videoFile.originalname : '';
     bdd.query(sql, [title, description, duration, price, playersMin, playersMax, nameImg, nameVideo, home, homeKit, finalGoal, idGame], (error, result) => {
-      console.log(error);
 
       const escapeId = result.insertId;
       const updateEscapeInThemesGames = "UPDATE themesGames SET idGame=?, idTheme=?;";
