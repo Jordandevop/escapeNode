@@ -73,7 +73,11 @@ router.post("/addGame", upload.fields([{ name: 'file' }, { name: 'video' }]), au
 
     const addGame = "INSERT INTO escapeGames (title, description, duration, price, playersMin, image, video, home, homeKit, playersMax,finalGoal, idDifficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?);";
     console.log(imageFile.originalname);
-    bdd.query(addGame, [title, description, duration, price, playersMin, imageFile.originalname, videoFile.originalname, home, homeKit, playersMax, finalGoal, idDifficulty], (error, result) => {
+    const nameImg = imageFile ? imageFile.originalname : '';
+    const nameVideo = videoFile ? videoFile.originalname : '';
+
+
+    bdd.query(addGame, [title, description, duration, price, playersMin, nameImg, nameVideo, home, homeKit, playersMax, finalGoal, idDifficulty], (error, result) => {
 
 
       const idEscape = result.insertId;
@@ -108,7 +112,6 @@ router.patch('/updateEscape/:idGame', upload.fields([{ name: 'file' }, { name: '
     const videoFile = req.files.video ? req.files.video[0] : null;
 
 
-
     if (imageFile && (path.extname(imageFile.originalname).toLowerCase() === ".png" || path.extname(imageFile.originalname).toLowerCase() === ".jpg")) {
       const targetPath = path.join(__dirname, "../uploads/images/" + imageFile.originalname);
       fs.rename(imageFile.path, targetPath, err => {
@@ -134,13 +137,16 @@ router.patch('/updateEscape/:idGame', upload.fields([{ name: 'file' }, { name: '
     }
 
 
-    const { title, description, duration, price, playersMin, playersMax, image, video, home, homeKit, finalGoal, idTheme } = escape;
-
+    const { title, description, duration, price, playersMin, playersMax, home, homeKit, finalGoal, idTheme } = escape;
 
     const { idGame } = req.params;
 
     const sql = 'update escapeGames SET title = ?, description = ?, duration = ?, price = ?, playersMin = ?, playersMax = ?, image = ?, video = ?, home = ? , homeKit = ?, finalGoal = ? WHERE idGame =?;';
-    bdd.query(sql, [title, description, duration, price, playersMin, playersMax, image, video, home, homeKit, idGame], (error, result) => {
+    const nameImg = imageFile ? imageFile.originalname : '';
+    const nameVideo = videoFile ? videoFile.originalname : '';
+    bdd.query(sql, [title, description, duration, price, playersMin, playersMax, nameImg, nameVideo, home, homeKit, finalGoal, idGame], (error, result) => {
+      console.log(error);
+
       const escapeId = result.insertId;
       const updateEscapeInThemesGames = "UPDATE themesGames SET idGame=?, idTheme=?;";
       bdd.query(updateEscapeInThemesGames, [escapeId, idTheme], (error, result) => {
