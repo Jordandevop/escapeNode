@@ -7,9 +7,9 @@ const auth = require('../Middleware/auth');
 // Ajouter des thèmes OK
 router.post("/addTheme", auth.authentification, (req, res) => {
     const { topic } = req.body;
-    if(req.clientRole == "admin") {
+    if (req.clientRole == "admin") {
         const addTheme = "INSERT INTO themes (topic) VALUES (?);";
-        bdd.query(addTheme, [ topic, req.clientRole], (error, result) => {
+        bdd.query(addTheme, [topic, req.clientRole], (error, result) => {
             if (error) throw error;
             res.send("Thème ajouté.");
         });
@@ -28,7 +28,7 @@ router.patch("/updateTheme/:idTheme", auth.authentification, (req, res) => {
             if (error) throw error;
             res.send("Le thème a bien été modifié.");
         });
-    } else { 
+    } else {
         res.send("Vous n'avez pas les droits.");
     };
 });
@@ -37,7 +37,7 @@ router.patch("/updateTheme/:idTheme", auth.authentification, (req, res) => {
 router.get("/getAllThemes", auth.authentification, (req, res) => {
     if (req.clientRole == "admin") {
         const getAllThemes = "SELECT * FROM themes;";
-        bdd.query(getAllThemes, [ req.clientRole], (error, result) => {
+        bdd.query(getAllThemes, [req.clientRole], (error, result) => {
             if (error) throw error;
             res.json(result);
         });
@@ -51,8 +51,8 @@ router.delete("/deleteTheme/:idTheme", auth.authentification, (req, res) => {
     const { idTheme } = req.params;
     if (req.clientRole == "admin") {
         const deleteTheme = "DELETE FROM themes WHERE idTheme=?;";
-        bdd.query(deleteTheme, [ idTheme, req.clientRole], (error, result) => {
-            if(error) throw error;
+        bdd.query(deleteTheme, [idTheme, req.clientRole], (error, result) => {
+            if (error) throw error;
             res.send("Thème supprimé.");
         });
     } else {
@@ -63,7 +63,7 @@ router.delete("/deleteTheme/:idTheme", auth.authentification, (req, res) => {
 // Afficher les thèmes et le nombre de jeux dans chaque thème
 router.get("/getNbGamesByTheme", (req, res) => {
     const getNbGamesByTheme = "SELECT themes.topic, count(escapeGames.idGame) AS nombre FROM themes LEFT JOIN themesGames ON themesGames.idTheme = themes.idTheme LEFT JOIN escapeGames ON escapeGames.idGame = themesGames.idGame GROUP BY themes.idTheme;";
-    bdd.query (getNbGamesByTheme, (error, result) => {
+    bdd.query(getNbGamesByTheme, (error, result) => {
         if (error) throw error;
         res.json(result);
     });
