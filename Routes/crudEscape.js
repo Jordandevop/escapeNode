@@ -45,7 +45,8 @@ router.post("/addGame", upload.fields([{ name: 'file' }, { name: 'video' }]), au
 
 
 
-    if (imageFile && (path.extname(imageFile.originalname).toLowerCase() === ".png" || path.extname(imageFile.originalname).toLowerCase() === ".jpg")) {
+    if (imageFile && (path.extname(imageFile.originalname).toLowerCase() === ".png" ||
+      path.extname(imageFile.originalname).toLowerCase() === ".jpg")) {
       const targetPath = path.join(__dirname, "../uploads/images/" + imageFile.originalname);
       fs.rename(imageFile.path, targetPath, err => {
         if (err) return handleError(err, res);
