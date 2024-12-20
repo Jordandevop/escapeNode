@@ -45,7 +45,8 @@ router.post("/addGame", upload.fields([{ name: 'file' }, { name: 'video' }]), au
 
 
 
-    if (imageFile && (path.extname(imageFile.originalname).toLowerCase() === ".png" || path.extname(imageFile.originalname).toLowerCase() === ".jpg")) {
+    if (imageFile && (path.extname(imageFile.originalname).toLowerCase() === ".png" ||
+      path.extname(imageFile.originalname).toLowerCase() === ".jpg")) {
       const targetPath = path.join(__dirname, "../uploads/images/" + imageFile.originalname);
       fs.rename(imageFile.path, targetPath, err => {
         if (err) return handleError(err, res);
@@ -78,16 +79,11 @@ router.post("/addGame", upload.fields([{ name: 'file' }, { name: 'video' }]), au
 
 
     bdd.query(addGame, [title, description, duration, price, playersMin, nameImg, nameVideo, home, homeKit, playersMax, finalGoal, idDifficulty], (error, result) => {
-<<<<<<< HEAD
 
       // if (error) {res.send("Il y a eu une erreur lors de la modif de l'escape game")}
       if(error) {
         res.send("Une erreur est survenue lors de la modification de l'escape game.")
       }
-=======
-      // if (error) {res.send('erreur lors de la creation de l escape game' )}
-
->>>>>>> ac691ff2d3e7b70505b5ea75bbcf5564b08de536
       const idEscape = result.insertId;
 
       const addGameInThemesGames = "INSERT INTO themesGames (idGame, idTheme) VALUES (?, ?);";
