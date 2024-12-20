@@ -20,7 +20,7 @@ router.patch('/updateReward/:idReward', auth.authentification, (req, res) => {
     const { typeReward } = req.body;
     if (req.clientRole == "admin") {
         const updateReward = "UPDATE rewards SET typeReward=? WHERE idReward=?;";
-        bdd.query(updateReward, [ typeReward, idReward], (error, result) => {
+        bdd.query(updateReward, [typeReward, idReward], (error, result) => {
             if (error) throw error;
             res.send("Récompense modifée.");
         });
@@ -34,7 +34,7 @@ router.delete('/deleteReward/:idReward', auth.authentification, (req, res) => {
     const { idReward } = req.params;
     if (req.clientRole == "admin") {
         const deleteReward = "DELETE FROM rewards WHERE idReward=?;";
-        bdd.query (deleteReward, [idReward], (error, result) => {
+        bdd.query(deleteReward, [idReward], (error, result) => {
             if (error) throw error;
             res.send("Récompense supprimée.");
         });
@@ -52,7 +52,7 @@ router.get('/getReward', auth.authentification, (req, res) => {
     } else {
         getReward = "SELECT clients.name, miniGames.mgTitle, mgResults.score, mgResults.playedAt, rewards.typeReward, rewards.dateReward FROM clients INNER JOIN mgResults ON mgResults.idClient=clients.idClient INNER JOIN miniGames ON miniGames.idMiniGame = mgResults.idMiniGame INNER JOIN rewards ON rewards.idResult=mgResults.idResult WHERE clients.email=?;"
     }
-    bdd.query (getReward, [req.clientEmail], (error, result) => {
+    bdd.query(getReward, [req.clientEmail], (error, result) => {
         if (error) throw error;
         res.json(result);
     });
@@ -66,10 +66,10 @@ router.get('/getRewardByTime', auth.authentification, (req, res) => {
     } else {
         getRewardByTime = "SELECT clients.name, clients.firstname, miniGames.mgTitle, miniGames.idMiniGame, mgResults.score, mgResults.playedAt, rewards.typeReward, rewards.dateReward, DATEDIFF(now(), dateReward) FROM clients INNER JOIN mgResults ON mgResults.idClient=clients.idClient INNER JOIN miniGames ON miniGames.idMiniGame = mgResults.idMiniGame INNER JOIN rewards ON rewards.idResult=mgResults.idResult WHERE clients.email=?;"
     }
-    bdd.query (getRewardByTime, [req.clientEmail], (error, result) => {
+    bdd.query(getRewardByTime, [req.clientEmail], (error, result) => {
         if (error) throw error;
         res.json(result);
     });
-}) ;
+});
 
 module.exports = router;

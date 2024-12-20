@@ -12,7 +12,7 @@ router.post('/addStock', auth.authentification, (req, res) => {
     } else {
         res.send("Vous n'avez pas les droits admin.");
     }
-    bdd.query( addStock, [idGame, stock, taxDelivery], (error, result) => {
+    bdd.query(addStock, [idGame, stock, taxDelivery], (error, result) => {
         if (error) throw error;
         res.send("Les infos stock ont été ajoutées.");
     });
@@ -25,10 +25,10 @@ router.patch('/updateStock/:idDelivery', auth.authentification, (req, res) => {
     let updateStock = "";
     if (req.clientRole == "admin") {
         updateStock = "UPDATE stock SET idGame=?, stock=?, taxDelivery=? WHERE idDelivery=?;";
-    } else { 
+    } else {
         res.send("Vous n'avez pas les droits admin.");
     }
-    bdd.query ( updateStock, [idGame, stock, taxDelivery, idDelivery], (error, result) => {
+    bdd.query(updateStock, [idGame, stock, taxDelivery, idDelivery], (error, result) => {
         if (error) throw error;
         res.send("Les infos stock ont été modifées.");
     });
@@ -39,12 +39,12 @@ router.patch('/updateStock/:idDelivery', auth.authentification, (req, res) => {
 router.delete('/deleteStock/:idDelivery', auth.authentification, (req, res) => {
     const { idDelivery } = req.params;
     let deleteStock = "";
-    if ( req.clientRole == "admin" ) {
+    if (req.clientRole == "admin") {
         deleteStock = "DELETE from stock WHERE idDelivery=?;";
     } else {
         res.send("Vous n'avez pas les droits admin.");
     }
-    bdd.query(deleteStock, [ idDelivery ], (error, result) => {
+    bdd.query(deleteStock, [idDelivery], (error, result) => {
         if (error) throw error;
         res.send("Les infos stock ont été supprimées.");
     });
@@ -53,12 +53,12 @@ router.delete('/deleteStock/:idDelivery', auth.authentification, (req, res) => {
 //  Afficher les infos stock si on est admin
 router.get('/getStock', auth.authentification, (req, res) => {
     let getStock = "";
-    if ( req.clientRole == "admin" ) {
+    if (req.clientRole == "admin") {
         getStock = "SELECT stock.idDelivery, stock.idGame, stock.stock, stock.taxDelivery, escapeGames.title, escapeGames.description FROM stock INNER JOIN escapeGames ON escapeGames.idGame = stock.idGame;";
     } else {
         res.send("Vous n'avez pas les droits.");
     }
-    bdd.query ( getStock, [req.clientRole], (error, result) => {
+    bdd.query(getStock, [req.clientRole], (error, result) => {
         if (error) throw error;
         res.json(result);
     });
