@@ -9,13 +9,13 @@ const auth = require('../Middleware/auth');
 router.post('/addMGame', auth.authentification, (req, res) => {
     const { mgTitle, mgDes } = req.body;
     let addMGame = "";
-    if(req.clientRole == "admin") {
+    if (req.clientRole == "admin") {
         addMGame = "INSERT INTO miniGames (mgTitle, mgDes) VALUES (?, ?);";
     } else {
         res.send("Vous n'avez pas l'accès");
     }
-    bdd.query( addMGame, [mgTitle, mgDes, req.clientRole], (error, result) => {
-        if(error) throw error;
+    bdd.query(addMGame, [mgTitle, mgDes, req.clientRole], (error, result) => {
+        if (error) throw error;
         res.send("Mini game ajouté.");
     });
 });
@@ -25,8 +25,8 @@ router.patch('/updateMGame/:idMiniGame', auth.authentification, (req, res) => {
     const { idMiniGame } = req.params;
     const { mgTitle, mgDes } = req.body;
     const updateMGame = "UPDATE miniGames SET mgTitle=?, mgDes=? WHERE idMiniGame=?;";
-    bdd.query ( updateMGame, [ mgTitle, mgDes, idMiniGame ], (error, result) => {
-        if(error) throw error;
+    bdd.query(updateMGame, [mgTitle, mgDes, idMiniGame], (error, result) => {
+        if (error) throw error;
         res.send("Le mini game a bien été modifié.");
     });
 });
@@ -35,7 +35,7 @@ router.patch('/updateMGame/:idMiniGame', auth.authentification, (req, res) => {
 router.delete('/deleteMGame/:idMiniGame', auth.authentification, (req, res) => {
     const { idMiniGame } = req.params;
     const deleteMGame = "DELETE FROM miniGames WHERE idMiniGame = ?;";
-    bdd.query ( deleteMGame, [ idMiniGame], (error, result) => {
+    bdd.query(deleteMGame, [idMiniGame], (error, result) => {
         if (error) throw error;
         res.send("Le mini game a bien été supprimé.");
     });
@@ -46,7 +46,7 @@ router.delete('/deleteMGame/:idMiniGame', auth.authentification, (req, res) => {
 router.get('/getMGameById/:idMiniGame', auth.authentification, (req, res) => {
     const { idMiniGame } = req.params;
     const getMGameById = "SELECT * FROM miniGames WHERE idMiniGame = ?;";
-    bdd.query( getMGameById, [idMiniGame], (error, result) => {
+    bdd.query(getMGameById, [idMiniGame], (error, result) => {
         if (error) throw error;
         res.json(result);
     });
@@ -58,7 +58,7 @@ router.get('/getMGameByRole', auth.authentification, (req, res) => {
     let getMGameByRole = "";
     if (req.clientRole == "admin") {
         getMGameByRole = "SELECT * FROM miniGames;";
-        bdd.query (getMGameByRole, [req.clientRole], (error, result) => {
+        bdd.query(getMGameByRole, [req.clientRole], (error, result) => {
             if (error) throw error;
             res.json(result);
         });

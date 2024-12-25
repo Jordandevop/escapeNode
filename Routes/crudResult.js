@@ -24,7 +24,7 @@ const auth = require('../Middleware/auth');
 router.post('/addResult', (req, res) => {
     const { idClient, idMiniGame, score } = req.body;
     const addResult = "INSERT INTO mgResults (idClient, idMiniGame, score, playedAt) VALUES (?, ?, ?, now());";
-    bdd.query(addResult, [ idClient, idMiniGame, score ], (error, result) => {
+    bdd.query(addResult, [idClient, idMiniGame, score], (error, result) => {
         if (error) throw error;
         res.send("Résultat ajouté.");
     });
@@ -33,11 +33,11 @@ router.post('/addResult', (req, res) => {
 // Modifier un résultat si on est admin, j'ai ajouté le now et enlevé playedAt OK OK
 router.patch('/updateResult/:idResult', auth.authentification, (req, res) => {
     const { idResult } = req.params;
-    const { idClient, idMiniGame, score  } = req.body;
+    const { idClient, idMiniGame, score } = req.body;
     let updateResult = "";
     if (req.clientRole == "admin") {
         updateResult = "UPDATE mgResults SET idClient=?, idMiniGame=?, score=? WHERE idResult=?;";
-        bdd.query ( updateResult, [idClient, idMiniGame, score, idResult], (error, result) => {
+        bdd.query(updateResult, [idClient, idMiniGame, score, idResult], (error, result) => {
             if (error) throw error;
             res.send("Résultat modifié.");
         });
@@ -52,8 +52,8 @@ router.delete('/deleteResult/:idResult', auth.authentification, (req, res) => {
     let deleteResult = "";
     if (req.clientRole == "admin") {
         deleteResult = "DELETE from mgResults WHERE idResult=?;";
-        bdd.query ( deleteResult, [idResult], (error, result) => {
-            if(error) throw error;
+        bdd.query(deleteResult, [idResult], (error, result) => {
+            if (error) throw error;
             res.send("Résultat supprimé");
         });
     } else {
@@ -70,7 +70,7 @@ router.get('/getResult', auth.authentification, (req, res) => {
     } else {
         getResultByIdClient = "SELECT mgResults.idResult, mgResults.idMiniGame, mgResults.score, mgResults.playedAt, miniGames.mgTitle FROM mgResults INNER JOIN miniGames ON miniGames.idMiniGame = mgResults.idMiniGame INNER JOIN clients ON clients.idClient = mgResults.idClient WHERE clients.email = ?;";
     }
-    bdd.query ( getResultByIdClient, [req.clientEmail], (error, result) => {
+    bdd.query(getResultByIdClient, [req.clientEmail], (error, result) => {
         if (error) throw error;
         res.json(result);
     });
@@ -80,12 +80,12 @@ router.get('/getResult', auth.authentification, (req, res) => {
 // Afficher le temps écoulé entre maintenant et le moment où un client a joué (pas avant 1 semaine) OK
 router.get('/getTimeParty', auth.authentification, (req, res) => {
     let getTimeParty = "";
-    if(req.clientRole === "admin") {
+    if (req.clientRole === "admin") {
         getTimeParty = "SELECT clients.idClient, clients.name, clients.firstname, miniGames.idMiniGame, miniGames.mgTitle, mgResults.playedAt, DATEDIFF(now(), playedAt) FROM clients INNER JOIN mgResults ON mgResults.idClient = clients.idClient INNER JOIN miniGames ON miniGames.idMiniGame = miniGames.idMiniGame;";
     } else {
         getTimeParty = "SELECT clients.idClient, clients.name, clients.firstname, miniGames.idMiniGame, miniGames.mgTitle, mgResults.playedAt, DATEDIFF(now(), playedAt) FROM clients INNER JOIN mgResults ON mgResults.idClient = clients.idClient INNER JOIN miniGames ON miniGames.idMiniGame = miniGames.idMiniGame WHERE clients.email=?;"
     }
-    bdd.query( getTimeParty, [req.clientRole, req.clientEmail], (error, result) => {
+    bdd.query(getTimeParty, [req.clientRole, req.clientEmail], (error, result) => {
         if (error) throw error;
         res.json(result);
     });
